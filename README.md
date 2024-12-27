@@ -35,7 +35,7 @@ Commands:
 ### loadcache
 
 ```
-pscachier tuxedo loadcache --help
+$ pscachier tuxedo loadcache --help
 Usage: pscachier tuxedo loadcache [OPTIONS]
 
   Run the LOADCACHE program to generate cache
@@ -61,7 +61,7 @@ pscachier tuxedo loadcache loadcache --database FSCMDB --ps-servdir /home/psadm2
 ### copycache
 
 ```
-pscachier tuxedo copycache --help
+$ pscachier tuxedo copycache --help
 Usage: pscachier tuxedo copycache [OPTIONS]
 
   Copy generated cache to PSAPPSRVs
