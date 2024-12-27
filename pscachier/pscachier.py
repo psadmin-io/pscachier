@@ -70,7 +70,7 @@ def loadcache(options_file, rebase, ps_servdir, database):
 
     # Rebase cache
     if rebase:
-        print("Rebase by removing previous cache")
+        print("INFO: Rebase by removing previous cache")
         patterns = [
             f"{ps_servdir}/CACHE/1/*.DAT",
             f"{ps_servdir}/CACHE/1/*.KEY",
@@ -102,6 +102,7 @@ def loadcache(options_file, rebase, ps_servdir, database):
     ]
 
     try:
+        print(f"INFO: Running LOADCACHE and generating to {ps_servdir}")
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         return e.returncode
