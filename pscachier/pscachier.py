@@ -19,11 +19,7 @@ def cli(config):
     """PeopleSoft Cache Tool"""
     pass    
 
-# TODO
-# - validate PS_HOME is set and exists
-# - validate psae is there
-# - validate PS_CFG_HOME and PS_SERVDIR as well?
-# - improve psae config/credential options
+# TODO - improve psae config/credential options
 
 @cli.group()
 def tuxedo():
@@ -53,8 +49,6 @@ def tuxedo():
               default="false",
               show_default=True,
               help="Delete current generated cache to rebase")
-@click.option('-h','--ps-home',
-              help="PS_HOME")
 def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect_id, connect_pw):
     """Run the LOADCACHE program to generate cache"""
  
@@ -66,15 +60,16 @@ def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect
         print(f"Error: The PS_SERVDIR directory '{ps_servdir}' does not exist.")
         exit(1) 
 
-    # validate ps_home
-#    ps_cfg_home = os.getenv('PS_CFG_HOME')
-#    if ps_cfg_home is None:
-#        print(f"Error: Environment variable 'PS_CFG_HOME' is not set.")
-#        sys.exit(1)  # Exit the program with a non-zero status to indicate failure
+    # validate ps_home - TODO
+    #ps_home_env = os.getenv('PS_HOME')
+    #if ps_home_env is None:
+    #    print(f"Error: Environment variable 'PS_HOME' is not set.")
+    #    exit(1)
 
-    # validate psae
+    # validate psae - TODO
 
 
+    # rebase - TODO
 #        if reset:
 #            logger.info("Removing previous cache")
 #            for path in [
@@ -89,6 +84,8 @@ def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect
 #        logger.info("Environment: %s", os.environ)
 #        logger.info("-------------------")
 #
+
+    # run LOADCACHE
     command = [
         "psae",
         "-CT", "ORACLE",
@@ -106,10 +103,10 @@ def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect
             subprocess.run(command, check=True)
         else:
             subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#            logger.info("Run LOADCACHE [ Done ]")
+            # TODO logger.info("Run LOADCACHE [ Done ]")
     except subprocess.CalledProcessError as e:
-#            logger.error("Run LOADCACHE [ Error ]")
-#            logger.error("  Result Code: %s", e.returncode)
+        # TODO logger.error("Run LOADCACHE [ Error ]")
+        # TODO logger.error("  Result Code: %s", e.returncode)
         return e.returncode
 
     return 0
@@ -154,7 +151,7 @@ def copycache(domain, ps_servdir, ps_cfg_home, rebase):
         minsetting = config.get('PSAPPSRV','Min Instances')
         print(f"PSAPPSRV Min: {minsetting}")
 
-# TODO - handle rebase
+    # rebase TODO
 #    if [[ ${RESET} == "true" ]]; then
 #      echoinfo "Remove Existing CACHE Files [ Task ]"
 #      for ((i=1; i<=minsetting; i++))
