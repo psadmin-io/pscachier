@@ -32,7 +32,7 @@ def tuxedo():
 @click.option('-o','--options-file',
               default=f"{os.getenv('HOME')}/psae.options",
               help="Location to store temporary options file for AE")
-@click.option('-d', '--ps-servdir',
+@click.option('-sd', '--ps-servdir',
               required=True,
               help="Directory used to store generated cache")
 @click.option('-r', '--rebase', 
@@ -110,9 +110,10 @@ def loadcache(options_file, rebase, ps_servdir, database):
 @click.option('-d','--domain',
               required=True,
               help="App server domain name")
-@click.option('-pd', '--ps-servdir',
+@click.option('-sd','--ps-servdir',
+              required=True,
               help="Directory used to store generated cache")
-@click.option('-pc','--ps-cfg-home',
+@click.option('-ch','--ps-cfg-home',
               help="PS_CFG_HOME")
 @click.option('-r','--rebase',
               is_flag=True,
@@ -121,22 +122,23 @@ def copycache(domain, ps_servdir, ps_cfg_home, rebase):
     """Copy generated cache to PSAPPSRVs"""
 
     # Validate ps_servdir
+    os.environ["PS_SERVDIR"] = ps_servdir
+    if not os.path.isdir(ps_servdir):
+        print(f"Error: The PS_SERVDIR directory '{ps_servdir}' does not exist.")
+        exit(1) 
     ps_servdir = os.getenv('PS_SERVDIR')
-    if ps_servdir is None:
-        print(f"Error: Environment variable 'PS_SERVDIR' is not set.")
-        sys.exit(1)  # Exit the program with a non-zero status to indicate failure
 
     # Validate ps_cfg_home
     ps_cfg_home = os.getenv('PS_CFG_HOME')
     if ps_cfg_home is None:
         print(f"Error: Environment variable 'PS_CFG_HOME' is not set.")
-        sys.exit(1)  # Exit the program with a non-zero status to indicate failure
+        sys.exit(1)
 
     # Check if cfg file exists
     psappsrv_cfg = f"{ps_cfg_home}/appserv/{domain}/psappsrv.cfg"
     if not os.path.exists(psappsrv_cfg):
         print(f"Error: The file '{psappsrv_cfg}' does not exist.")
-        sys.exit(1)  # Exit the program with a non-zero status to indicate failure
+        sys.exit(1)
 
     # Get Min Instances setting
     config = configparser.ConfigParser()
