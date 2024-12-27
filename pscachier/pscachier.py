@@ -1,4 +1,5 @@
 import os
+import glob
 import shutil
 import subprocess
 import time
@@ -19,8 +20,6 @@ def cli(config):
     """PeopleSoft Cache Tool"""
     pass    
 
-# TODO - improve psae config/credential options
-
 @cli.group()
 def tuxedo():
     """Working with Tuxedo cache"""
@@ -30,86 +29,82 @@ def tuxedo():
 @click.option('-db','--database',
               required=True,
               help="Database")
-@click.option('-un','--username',
-              required=True,
-              help="Username")
-@click.option('-up','--userpass',
-              required=True,
-              help="Userpass")
-@click.option('-ci','--connect-id',
-              required=True,
-              help="Connect ID")
-@click.option('-cp','--connect-pw',
-              required=True,
-              help="Connect Password")
+@click.option('-o','--options-file',
+              default=f"{os.getenv('HOME')}/psae.options",
+              help="Location to store temporary options file for AE")
 @click.option('-d', '--ps-servdir',
               required=True,
               help="Directory used to store generated cache")
 @click.option('-r', '--rebase', 
-              default="false",
-              show_default=True,
+              is_flag=True,
               help="Delete current generated cache to rebase")
-def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect_id, connect_pw):
+def loadcache(options_file, rebase, ps_servdir, database):
     """Run the LOADCACHE program to generate cache"""
- 
-    #TODO logger.setLevel(logging.DEBUG if debug else logging.INFO)
-    debug = True
 
-    # validate ps_servdir
+    # Validate ps_servdir
+    os.environ["PS_SERVDIR"] = ps_servdir
     if not os.path.isdir(ps_servdir):
         print(f"Error: The PS_SERVDIR directory '{ps_servdir}' does not exist.")
         exit(1) 
 
-    # validate ps_home - TODO
-    #ps_home_env = os.getenv('PS_HOME')
-    #if ps_home_env is None:
-    #    print(f"Error: Environment variable 'PS_HOME' is not set.")
-    #    exit(1)
+    # Validate credentials set as environment variables
+    username = os.getenv('PSC_USER')
+    if username is None:
+        print(f"Error: Environment variable 'PSC_USER' is not set.")
+        exit(1)
 
-    # validate psae - TODO
+    userpass = os.getenv('PSC_PASS')
+    if userpass is None:
+        print(f"Error: Environment variable 'PSC_PASS' is not set.")
+        exit(1)
 
+    connect_id = os.getenv('PSC_CONN_ID')
+    if connect_id is None:
+        print(f"Error: Environment variable 'PSC_CONN_ID' is not set.")
+        exit(1)
 
-    # rebase - TODO
-#        if reset:
-#            logger.info("Removing previous cache")
-#            for path in [
-#                f"{ps_servdir}/CACHE/1/*.DAT",
-#                f"{ps_servdir}/CACHE/1/*.KEY",
-#                f"{ps_servdir}/CACHE/STAGE/stage/*.DAT",
-#                f"{ps_servdir}/CACHE/STAGE/stage/*.KEY",
-#            ]:
-#                subprocess.run(["rm", "-rf", path], check=False)
-#
-#        logger.info("Run LOADCACHE [ Task ]")
-#        logger.info("Environment: %s", os.environ)
-#        logger.info("-------------------")
-#
+    connect_pw = os.getenv('PSC_CONN_PW')
+    if connect_pw is None:
+        print(f"Error: Environment variable 'PSC_CON_PW' is not set.")
+        exit(1)
 
-    # run LOADCACHE
+    # Rebase cache
+    if rebase:
+        print("Rebase by removing previous cache")
+        patterns = [
+            f"{ps_servdir}/CACHE/1/*.DAT",
+            f"{ps_servdir}/CACHE/1/*.KEY",
+            f"{ps_servdir}/CACHE/STAGE/stage/*.DAT",
+            f"{ps_servdir}/CACHE/STAGE/stage/*.KEY"
+        ]
+
+        for p in patterns:
+            for f in glob.glob(p):
+                os.remove(f)
+
+    # Prepare options file
+    print(f"INFO: Generating options file '{options_file}'. This will be deleted after succesful AE run.")
+    with open(options_file, 'w+') as file:
+        file.write(f"-CT ORACLE\n")
+        file.write(f"-CD {database.upper()}\n")
+        file.write(f"-R LOADCACHE\n")
+        file.write(f"-AI LOADCACHE\n")
+        file.write(f"-DR Y\n") # disable restart
+        file.write(f"-CO {username}\n")
+        file.write(f"-CP {userpass}\n")
+        file.write(f"-CI {connect_id}\n")
+        file.write(f"-CW {connect_pw}\n")
+
+    # Run LOADCACHE
     command = [
         "psae",
-        "-CT", "ORACLE",
-        "-CD", database.upper(),
-        "-CO", username,
-        "-CP", userpass,
-        "-R", "LOADCACHE",
-        "-AI", "LOADCACHE",
-        "-CI", connect_id,
-        "-CW", connect_pw
+        options_file
     ]
 
     try:
-        if debug:
-            subprocess.run(command, check=True)
-        else:
-            subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            # TODO logger.info("Run LOADCACHE [ Done ]")
+        subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
-        # TODO logger.error("Run LOADCACHE [ Error ]")
-        # TODO logger.error("  Result Code: %s", e.returncode)
         return e.returncode
-
-    return 0
 
 @tuxedo.command("copycache")
 @click.option('-d','--domain',
@@ -120,53 +115,46 @@ def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect
 @click.option('-pc','--ps-cfg-home',
               help="PS_CFG_HOME")
 @click.option('-r','--rebase',
+              is_flag=True,
               help="Rebase cache")
 def copycache(domain, ps_servdir, ps_cfg_home, rebase):
     """Copy generated cache to PSAPPSRVs"""
-    #debug = True
-    #TODO logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
-    # validate ps_servdir
+    # Validate ps_servdir
     ps_servdir = os.getenv('PS_SERVDIR')
     if ps_servdir is None:
         print(f"Error: Environment variable 'PS_SERVDIR' is not set.")
         sys.exit(1)  # Exit the program with a non-zero status to indicate failure
 
-    # validate ps_cfg_home
+    # Validate ps_cfg_home
     ps_cfg_home = os.getenv('PS_CFG_HOME')
     if ps_cfg_home is None:
         print(f"Error: Environment variable 'PS_CFG_HOME' is not set.")
         sys.exit(1)  # Exit the program with a non-zero status to indicate failure
 
-    # check if file exists
+    # Check if cfg file exists
     psappsrv_cfg = f"{ps_cfg_home}/appserv/{domain}/psappsrv.cfg"
     if not os.path.exists(psappsrv_cfg):
         print(f"Error: The file '{psappsrv_cfg}' does not exist.")
         sys.exit(1)  # Exit the program with a non-zero status to indicate failure
 
-    # find MIN appsrv setting
+    # Get Min Instances setting
     config = configparser.ConfigParser()
     config.read(psappsrv_cfg)
     if config.has_section('PSAPPSRV'):
         minsetting = config.get('PSAPPSRV','Min Instances')
-        print(f"PSAPPSRV Min: {minsetting}")
+        print(f"INFO: PSAPPSRV Min {minsetting}")
 
-    # rebase TODO
-#    if [[ ${RESET} == "true" ]]; then
-#      echoinfo "Remove Existing CACHE Files [ Task ]"
-#      for ((i=1; i<=minsetting; i++))
-#      do
-#        rm -rf $PS_CFG_HOME/appserv/${ENVIRONMENT}/CACHE/PSAPPSRV_${i}/*
-#      done
-#      echoinfo "Remove Existing CACHE Files [ Done ]"
-#    fi
+    # Rebase cache
+    if rebase:
+        print("INFO: Rebase by removing previous cache")
+        for i in range(1, int(minsetting) + 1):
+            for f in glob.glob(f"{ps_cfg_home}/appserv/{domain}/CACHE/PSAPPSRV_{i}/*"):
+                os.remove(f)
 
-    # copy generated cache
+    # Copy generated cache
     for i in range(1, int(minsetting) + 1):
         target_dir = os.path.join(ps_cfg_home, 'appserv', domain, 'CACHE', f'PSAPPSRV_{i}')
         os.makedirs(target_dir, exist_ok=True)
         shutil.copytree(os.path.join(ps_servdir, 'CACHE', 'STAGE', 'stage'), target_dir, dirs_exist_ok = True)
-        print(f"Created and copied to {target_dir}")
-
-    return 0
-
+        print(f"INFO: Copied to {target_dir}")
