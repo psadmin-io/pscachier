@@ -114,8 +114,6 @@ def loadcache(options_file, rebase, ps_servdir, database):
 @click.option('-sd','--ps-servdir',
               required=True,
               help="Directory used to store generated cache")
-@click.option('-ch','--ps-cfg-home',
-              help="PS_CFG_HOME")
 @click.option('-r','--rebase',
               is_flag=True,
               help="Rebase cache")
