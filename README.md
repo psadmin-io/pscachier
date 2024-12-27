@@ -50,13 +50,18 @@ Options:
 ```
 
 ```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PS_HOME/python/lib
+pexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PS_HOME/python/lib
 export PSC_USER="PS"
 export PSC_PASS="PS"
 export PSC_CONN_ID="people"
 export PSC_CONN_PW="peop1e"
 
-pscachier tuxedo loadcache loadcache --database FSCMDB --ps-servdir /home/psadm2/pscache
+export DATABASE="FSCMPUM"
+export PS_SERVDIR="/my/share/pscache/$DATABASE"
+
+pscachier tuxedo loadcache \
+  --database $DATABASE \
+  --ps-servdir $PS_SERVDIR
 ```
 
 ### copycache
