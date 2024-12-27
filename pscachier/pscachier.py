@@ -20,7 +20,8 @@ def cli(config):
     pass    
 
 # TODO
-# - validate PS_HOME is set
+# - validate PS_HOME is set and exists
+# - validate psae is there
 # - validate PS_CFG_HOME and PS_SERVDIR as well?
 # - improve psae config/credential options
 
@@ -34,32 +35,45 @@ def tuxedo():
               required=True,
               help="Database")
 @click.option('-un','--username',
-              default="VP1",
+              required=True,
               help="Username")
 @click.option('-up','--userpass',
-              default="PS",
+              required=True,
               help="Userpass")
 @click.option('-ci','--connect-id',
-              default="people",
+              required=True,
               help="Connect ID")
 @click.option('-cp','--connect-pw',
-              default="peop1e",
+              required=True,
               help="Connect Password")
+@click.option('-d', '--ps-servdir',
+              required=True,
+              help="Directory used to store generated cache")
 @click.option('-r', '--rebase', 
               default="false",
               show_default=True,
               help="Delete current generated cache to rebase")
-@click.option('-d', '--ps-servdir',
-              help="Directory used to store generated cache")
 @click.option('-h','--ps-home',
               help="PS_HOME")
 def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect_id, connect_pw):
     """Run the LOADCACHE program to generate cache"""
-    debug = True
+ 
     #TODO logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    debug = True
 
-    timings = {}
-    start_time = time.time()
+    # validate ps_servdir
+    if not os.path.isdir(ps_servdir):
+        print(f"Error: The PS_SERVDIR directory '{ps_servdir}' does not exist.")
+        exit(1) 
+
+    # validate ps_home
+#    ps_cfg_home = os.getenv('PS_CFG_HOME')
+#    if ps_cfg_home is None:
+#        print(f"Error: Environment variable 'PS_CFG_HOME' is not set.")
+#        sys.exit(1)  # Exit the program with a non-zero status to indicate failure
+
+    # validate psae
+
 
 #        if reset:
 #            logger.info("Removing previous cache")
@@ -96,11 +110,8 @@ def loadcache(rebase, ps_servdir, ps_home, database, username, userpass, connect
     except subprocess.CalledProcessError as e:
 #            logger.error("Run LOADCACHE [ Error ]")
 #            logger.error("  Result Code: %s", e.returncode)
-        timings['run_loadcache'] = time.time() - start_time
         return e.returncode
 
-    end_time = time.time()
-    timings['run_loadcache'] = end_time - start_time
     return 0
 
 @tuxedo.command("copycache")
