@@ -43,9 +43,10 @@ Usage: pscachier tuxedo loadcache [OPTIONS]
 Options:
   -db, --database TEXT     Database  [required]
   -o, --options-file TEXT  Location to store temporary options file for AE
+                           [default: /home/psadm2/psae.options]
   -sd, --ps-servdir TEXT   Directory used to store generated cache  [required]
   -r, --rebase             Delete current generated cache to rebase
-  --help                   Show this message and exit.
+  --help                   Show this message and exit
 ```
 
 ```
@@ -70,7 +71,7 @@ Options:
   -d, --domain TEXT        App server domain name  [required]
   -sd, --ps-servdir TEXT   Directory used to store generated cache  [required]
   -r, --rebase             Rebase cache
-  --help                   Show this message and exit.
+  --help                   Show this message and exit
 ```
 
 ```
