@@ -11,18 +11,18 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  tuxedo  Working with Tuxedo cache
+  app  Working with Application Server cache
 ```
 
 # Usage
 
-## tuxedo
+## app
 
 ```
-$ pscachier tuxedo --help
-Usage: pscachier tuxedo [OPTIONS] COMMAND [ARGS]...
+$ pscachier app --help
+Usage: pscachier app [OPTIONS] COMMAND [ARGS]...
 
-  Working with Tuxedo cache
+  Working with Application Server cache
 
 Options:
   --help  Show this message and exit.
@@ -35,8 +35,8 @@ Commands:
 ### loadcache
 
 ```
-$ pscachier tuxedo loadcache --help
-Usage: pscachier tuxedo loadcache [OPTIONS]
+$ pscachier app loadcache --help
+Usage: pscachier app loadcache [OPTIONS]
 
   Run the LOADCACHE program to generate cache
 
@@ -56,14 +56,14 @@ export PSC_PASS="PS"
 export PSC_CONN_ID="people"
 export PSC_CONN_PW="peop1e"
 
-pscachier tuxedo loadcache loadcache --database FSCMDB --ps-servdir /home/psadm2/pscache
+pscachier app loadcache loadcache --database FSCMDB --ps-servdir /home/psadm2/pscache
 ```
 
 ### copycache
 
 ```
-$ pscachier tuxedo copycache --help
-Usage: pscachier tuxedo copycache [OPTIONS]
+$ pscachier app copycache --help
+Usage: pscachier app copycache [OPTIONS]
 
   Copy generated cache to PSAPPSRVs
 
@@ -77,7 +77,7 @@ Options:
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PS_HOME/python/lib
 
-pscachier tuxedo copycache --domain APPDOM --ps-servdir /home/psadm2/pscache
+pscachier app copycache --domain APPDOM --ps-servdir /home/psadm2/pscache
 ```
 
 # Installing
