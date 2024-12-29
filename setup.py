@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup_args = dict(
     name='pscachier',
-    version='0.1.0',
+    version='0.1.2',
     description='pscachier',
     long_description_content_type="text/markdown",
     long_description=README,
@@ -19,7 +19,7 @@ setup_args = dict(
         "Programming Language :: Python :: 3"
     ],
     packages=find_packages(),
-    keywords=['PeopleSoft', 'PeopleTools','Tuxedo'],    
+    keywords=['PeopleSoft', 'PeopleTools'],    
     include_package_data=True,
     install_requires=["Click"],
     entry_points={

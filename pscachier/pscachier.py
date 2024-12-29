@@ -21,11 +21,11 @@ def cli(config):
     pass    
 
 @cli.group()
-def tuxedo():
-    """Working with Tuxedo cache"""
+def app():
+    """Working with Application Server cache"""
     pass
 
-@tuxedo.command("loadcache", context_settings={'show_default': True})
+@app.command("loadcache", context_settings={'show_default': True})
 @click.option('-db','--database',
               required=True,
               help="Database")
@@ -107,7 +107,7 @@ def loadcache(options_file, rebase, ps_servdir, database):
     except subprocess.CalledProcessError as e:
         return e.returncode
 
-@tuxedo.command("copycache", context_settings={'show_default': True})
+@app.command("copycache", context_settings={'show_default': True})
 @click.option('-d','--domain',
               required=True,
               help="App server domain name")
